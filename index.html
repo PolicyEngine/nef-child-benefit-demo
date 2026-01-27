@@ -832,30 +832,37 @@
                 </div>
                 <div class="code-content">
 <pre><span class="comment"># Universal Child Benefit Boost</span>
-<span class="comment"># Reform specification for PolicyEngine UK</span>
+<span class="comment"># pip install policyengine-uk</span>
 
+<span class="key">from</span> policyengine_uk <span class="key">import</span> Microsimulation
+
+<span class="comment"># Define the reform</span>
 <span class="key">reform</span> = <span class="bracket">{</span>
-    <span class="comment"># Double the eldest child rate: £26.05 → £52.10/week</span>
+    <span class="comment"># Double eldest child rate: £26.05 → £52.10/week</span>
     <span class="string">"gov.hmrc.child_benefit.amount.eldest"</span>: <span class="bracket">{</span>
-        <span class="string">"2024-01-01.2100-12-31"</span>: <span class="number">52.10</span>
+        <span class="string">"year:2024:10"</span>: <span class="number">52.10</span>
     <span class="bracket">}</span>,
-
-    <span class="comment"># Double additional children rate: £17.25 → £34.50/week</span>
+    <span class="comment"># Double additional children: £17.25 → £34.50/week</span>
     <span class="string">"gov.hmrc.child_benefit.amount.additional"</span>: <span class="bracket">{</span>
-        <span class="string">"2024-01-01.2100-12-31"</span>: <span class="number">34.50</span>
+        <span class="string">"year:2024:10"</span>: <span class="number">34.50</span>
     <span class="bracket">}</span>,
-
-    <span class="comment"># Abolish HICBC by setting threshold to £10M</span>
+    <span class="comment"># Abolish HICBC</span>
     <span class="string">"gov.hmrc.income_tax.charges.CB_HITC.phase_out_start"</span>: <span class="bracket">{</span>
-        <span class="string">"2024-01-01.2100-12-31"</span>: <span class="number">10_000_000</span>
+        <span class="string">"year:2024:10"</span>: <span class="number">10_000_000</span>
     <span class="bracket">}</span>
 <span class="bracket">}</span>
 
 <span class="comment"># Run microsimulation</span>
-<span class="key">from</span> policyengine_uk <span class="key">import</span> Microsimulation
-
 baseline = Microsimulation()
-reformed = Microsimulation(<span class="key">reform</span>=reform)</pre>
+reformed = Microsimulation(<span class="key">reform</span>=reform)
+
+<span class="comment"># Calculate impacts</span>
+year = <span class="number">2024</span>
+baseline_income = baseline.calculate(<span class="string">"household_net_income"</span>, year)
+reformed_income = reformed.calculate(<span class="string">"household_net_income"</span>, year)
+gain = reformed_income - baseline_income
+
+<span class="key">print</span>(<span class="string">f"Average gain: £</span><span class="bracket">{</span>gain.mean():<span class="number">.0f</span><span class="bracket">}</span><span class="string">/year"</span>)</pre>
                 </div>
             </div>
 
