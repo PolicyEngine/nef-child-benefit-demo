@@ -504,6 +504,111 @@
             height: 16px;
         }
 
+        /* Code Block */
+        .code-section {
+            margin-bottom: 5rem;
+        }
+
+        .code-container {
+            background: #1e1e2e;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .code-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            background: #181825;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .code-header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .code-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .code-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .code-dot.red { background: #f38ba8; }
+        .code-dot.yellow { background: #f9e2af; }
+        .code-dot.green { background: #a6e3a1; }
+
+        .code-filename {
+            color: #cdd6f4;
+            font-size: 0.85rem;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+        }
+
+        .code-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.35rem 0.75rem;
+            background: rgba(166, 227, 161, 0.1);
+            border: 1px solid rgba(166, 227, 161, 0.2);
+            border-radius: 100px;
+            color: #a6e3a1;
+            font-size: 0.75rem;
+            font-family: var(--font-body);
+        }
+
+        .code-content {
+            padding: 1.5rem;
+            overflow-x: auto;
+        }
+
+        .code-content pre {
+            margin: 0;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9rem;
+            line-height: 1.7;
+            color: #cdd6f4;
+        }
+
+        .code-content .comment { color: #6c7086; }
+        .code-content .key { color: #89b4fa; }
+        .code-content .string { color: #a6e3a1; }
+        .code-content .number { color: #fab387; }
+        .code-content .bracket { color: #f5c2e7; }
+
+        .code-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+            padding: 0.75rem 1.25rem;
+            background: var(--nef-crimson);
+            color: white;
+            text-decoration: none;
+            border-radius: 100px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .code-link:hover {
+            background: var(--nef-crimson-dark);
+            transform: translateY(-2px);
+        }
+
+        .code-link svg {
+            width: 18px;
+            height: 18px;
+        }
+
         /* Animations */
         @keyframes fadeInUp {
             from {
@@ -697,6 +802,70 @@
                         <span class="policy-item-value">All families</span>
                     </div>
                 </div>
+            </div>
+        </section>
+
+        <!-- Code Section -->
+        <section class="code-section">
+            <div class="section-header">
+                <h2>The code</h2>
+                <p>PolicyEngine reform specification used to generate this analysis</p>
+            </div>
+
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-header-left">
+                        <div class="code-dots">
+                            <span class="code-dot red"></span>
+                            <span class="code-dot yellow"></span>
+                            <span class="code-dot green"></span>
+                        </div>
+                        <span class="code-filename">reform.py</span>
+                    </div>
+                    <div class="code-badge">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                        Verified on PolicyEngine UK
+                    </div>
+                </div>
+                <div class="code-content">
+<pre><span class="comment"># Universal Child Benefit Boost</span>
+<span class="comment"># Reform specification for PolicyEngine UK</span>
+
+<span class="key">reform</span> = <span class="bracket">{</span>
+    <span class="comment"># Double the eldest child rate: £26.05 → £52.10/week</span>
+    <span class="string">"gov.hmrc.child_benefit.amount.eldest"</span>: <span class="bracket">{</span>
+        <span class="string">"2024-01-01.2100-12-31"</span>: <span class="number">52.10</span>
+    <span class="bracket">}</span>,
+
+    <span class="comment"># Double additional children rate: £17.25 → £34.50/week</span>
+    <span class="string">"gov.hmrc.child_benefit.amount.additional"</span>: <span class="bracket">{</span>
+        <span class="string">"2024-01-01.2100-12-31"</span>: <span class="number">34.50</span>
+    <span class="bracket">}</span>,
+
+    <span class="comment"># Abolish HICBC by setting threshold to £10M</span>
+    <span class="string">"gov.hmrc.income_tax.charges.CB_HITC.phase_out_start"</span>: <span class="bracket">{</span>
+        <span class="string">"2024-01-01.2100-12-31"</span>: <span class="number">10_000_000</span>
+    <span class="bracket">}</span>
+<span class="bracket">}</span>
+
+<span class="comment"># Run microsimulation</span>
+<span class="key">from</span> policyengine_uk <span class="key">import</span> Microsimulation
+
+baseline = Microsimulation()
+reformed = Microsimulation(<span class="key">reform</span>=reform)</pre>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="https://policyengine.org/uk/policy?reform=1&focus=gov.hmrc.child_benefit.amount.eldest&gov.hmrc.child_benefit.amount.eldest=52.10&gov.hmrc.child_benefit.amount.additional=34.50&gov.hmrc.income_tax.charges.CB_HITC.phase_out_start=10000000" target="_blank" class="code-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                    Open in PolicyEngine UK
+                </a>
             </div>
         </section>
 
