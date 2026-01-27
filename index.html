@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Child Benefit Boost | NEF × PolicyEngine</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            /* NEF Mission Colors */
+            --nef-crimson: #c32e30;
+            --nef-crimson-dark: #a02527;
+            --nef-crimson-light: #e85a5c;
+            --nef-teal: #368f7a;
+            --nef-teal-dark: #2a7362;
+            --nef-cobalt: #2e70a3;
+            --nef-cobalt-dark: #245a83;
+
+            /* Neutrals */
+            --ink: #1a1a1a;
+            --ink-light: #4a4a4a;
+            --paper: #fafaf8;
+            --paper-warm: #f5f3ef;
+            --cream: #fffef9;
+
+            /* Type */
+            --font-display: 'Instrument Serif', Georgia, serif;
+            --font-body: 'DM Sans', -apple-system, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 18px;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--cream);
+            color: var(--ink);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--nef-crimson) 0%, var(--nef-crimson-dark) 100%);
+            padding: 2rem;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+            z-index: 1;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1.25rem;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 100px;
+            margin-bottom: 2rem;
+            color: white;
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .hero-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.2); }
+        }
+
+        .hero h1 {
+            font-family: var(--font-display);
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 400;
+            color: white;
+            line-height: 1.05;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .hero h1 em {
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1.1rem, 2vw, 1.4rem);
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 650px;
+            margin-bottom: 3rem;
+            line-height: 1.5;
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            max-width: 900px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .stat-value {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            color: white;
+            font-weight: 400;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.75);
+            font-weight: 500;
+        }
+
+        /* Scroll indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-10px); }
+        }
+
+        .scroll-indicator svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 6rem 2rem;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-header h2 {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 4vw, 3rem);
+            color: var(--ink);
+            margin-bottom: 1rem;
+            font-weight: 400;
+        }
+
+        .section-header p {
+            font-size: 1.1rem;
+            color: var(--ink-light);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Chart Container */
+        .chart-section {
+            margin-bottom: 5rem;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .chart-title {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            color: var(--ink);
+        }
+
+        .chart-controls {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .chart-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            background: white;
+            border-radius: 100px;
+            font-family: var(--font-body);
+            font-size: 0.85rem;
+            color: var(--ink-light);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .chart-btn:hover {
+            border-color: var(--nef-crimson);
+            color: var(--nef-crimson);
+        }
+
+        .chart-btn.active {
+            background: var(--nef-crimson);
+            border-color: var(--nef-crimson);
+            color: white;
+        }
+
+        .chart-wrapper {
+            height: 400px;
+            position: relative;
+        }
+
+        /* Impact Cards Grid */
+        .impact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 5rem;
+        }
+
+        .impact-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .impact-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--nef-crimson);
+            transform: scaleY(0);
+            transform-origin: bottom;
+            transition: transform 0.3s ease;
+        }
+
+        .impact-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 50px rgba(0, 0, 0, 0.08);
+        }
+
+        .impact-card:hover::before {
+            transform: scaleY(1);
+        }
+
+        .impact-card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .impact-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .impact-icon.children-1 { background: rgba(195, 46, 48, 0.1); }
+        .impact-icon.children-2 { background: rgba(54, 143, 122, 0.1); }
+        .impact-icon.children-3 { background: rgba(46, 112, 163, 0.1); }
+
+        .impact-card-title {
+            font-weight: 600;
+            color: var(--ink);
+            font-size: 1rem;
+        }
+
+        .impact-card-subtitle {
+            font-size: 0.85rem;
+            color: var(--ink-light);
+        }
+
+        .impact-value {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            color: var(--nef-crimson);
+            margin-bottom: 0.25rem;
+        }
+
+        .impact-description {
+            font-size: 0.9rem;
+            color: var(--ink-light);
+            line-height: 1.5;
+        }
+
+        /* Policy Explainer */
+        .policy-section {
+            background: var(--paper-warm);
+            border-radius: 32px;
+            padding: 4rem;
+            margin-bottom: 5rem;
+        }
+
+        .policy-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .policy-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .policy-column h3 {
+            font-family: var(--font-display);
+            font-size: 1.75rem;
+            color: var(--ink);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .policy-column h3::before {
+            content: '';
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: block;
+        }
+
+        .policy-column.current h3::before {
+            background: linear-gradient(135deg, #ddd 0%, #bbb 100%);
+        }
+
+        .policy-column.reform h3::before {
+            background: linear-gradient(135deg, var(--nef-crimson) 0%, var(--nef-crimson-dark) 100%);
+        }
+
+        .policy-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .policy-item:last-child {
+            border-bottom: none;
+        }
+
+        .policy-item-label {
+            color: var(--ink-light);
+        }
+
+        .policy-item-value {
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .policy-column.reform .policy-item-value {
+            color: var(--nef-crimson);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--ink);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .footer-logos {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-logo {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            opacity: 0.9;
+        }
+
+        .footer-divider {
+            width: 1px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .footer p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .footer a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        /* Data source badge */
+        .data-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(195, 46, 48, 0.08);
+            border-radius: 100px;
+            font-size: 0.8rem;
+            color: var(--nef-crimson);
+            margin-bottom: 1rem;
+        }
+
+        .data-badge svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span>Live PolicyEngine UK Analysis</span>
+            </div>
+            <h1>Universal<br>Child Benefit <em>Boost</em></h1>
+            <p class="hero-subtitle">
+                Double Child Benefit rates and abolish the High Income Child Benefit Charge —
+                delivering up to £6,297 more per year for families across the UK.
+            </p>
+            <div class="hero-stats">
+                <div class="stat-card">
+                    <div class="stat-value">£2,793</div>
+                    <div class="stat-label">Average annual gain per family</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">£6,297</div>
+                    <div class="stat-label">Maximum annual gain</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">10%+</div>
+                    <div class="stat-label">Income boost for low-income families</div>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <span>Scroll to explore</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Impact by Income Chart -->
+        <section class="chart-section">
+            <div class="section-header">
+                <div class="data-badge">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    Real data from PolicyEngine UK
+                </div>
+                <h2>Impact by household income</h2>
+                <p>Annual gain in £ for families with children at different income levels</p>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3 class="chart-title">Annual household income gain</h3>
+                    <div class="chart-controls">
+                        <button class="chart-btn active" data-children="1">1 child</button>
+                        <button class="chart-btn" data-children="2">2 children</button>
+                        <button class="chart-btn" data-children="3">3 children</button>
+                    </div>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="incomeChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Household Impact Cards -->
+        <section class="impact-grid">
+            <div class="impact-card">
+                <div class="impact-card-header">
+                    <div class="impact-icon children-1">👶</div>
+                    <div>
+                        <div class="impact-card-title">Single parent, 1 child</div>
+                        <div class="impact-card-subtitle">£35,000 annual income</div>
+                    </div>
+                </div>
+                <div class="impact-value">+£1,378</div>
+                <p class="impact-description">
+                    A 4.6% boost to household income. Child Benefit rises from £1,355 to £2,709 per year.
+                </p>
+            </div>
+
+            <div class="impact-card">
+                <div class="impact-card-header">
+                    <div class="impact-icon children-2">👧👦</div>
+                    <div>
+                        <div class="impact-card-title">Single parent, 2 children</div>
+                        <div class="impact-card-subtitle">£35,000 annual income</div>
+                    </div>
+                </div>
+                <div class="impact-value">+£2,290</div>
+                <p class="impact-description">
+                    A 7.2% boost to household income. Child Benefit nearly doubles, lifting family finances significantly.
+                </p>
+            </div>
+
+            <div class="impact-card">
+                <div class="impact-card-header">
+                    <div class="impact-icon children-3">👧👦👶</div>
+                    <div>
+                        <div class="impact-card-title">Single parent, 3 children</div>
+                        <div class="impact-card-subtitle">£35,000 annual income</div>
+                    </div>
+                </div>
+                <div class="impact-value">+£3,203</div>
+                <p class="impact-description">
+                    An 8.6% boost to household income. Larger families see the biggest absolute gains.
+                </p>
+            </div>
+
+            <div class="impact-card">
+                <div class="impact-card-header">
+                    <div class="impact-icon children-2" style="background: rgba(46, 112, 163, 0.1);">🎓</div>
+                    <div>
+                        <div class="impact-card-title">High earner, 2 children</div>
+                        <div class="impact-card-subtitle">£80,000 annual income</div>
+                    </div>
+                </div>
+                <div class="impact-value">+£4,503</div>
+                <p class="impact-description">
+                    HICBC abolition means full Child Benefit restored. This family was previously losing benefits to the charge.
+                </p>
+            </div>
+        </section>
+
+        <!-- Policy Comparison -->
+        <section class="policy-section">
+            <div class="section-header" style="margin-bottom: 3rem;">
+                <h2>The policy reform</h2>
+                <p>What changes and what stays the same</p>
+            </div>
+
+            <div class="policy-grid">
+                <div class="policy-column current">
+                    <h3>Current policy</h3>
+                    <div class="policy-item">
+                        <span class="policy-item-label">Eldest child rate</span>
+                        <span class="policy-item-value">£26.05/week</span>
+                    </div>
+                    <div class="policy-item">
+                        <span class="policy-item-label">Additional children</span>
+                        <span class="policy-item-value">£17.25/week</span>
+                    </div>
+                    <div class="policy-item">
+                        <span class="policy-item-label">HICBC starts at</span>
+                        <span class="policy-item-value">£60,000</span>
+                    </div>
+                    <div class="policy-item">
+                        <span class="policy-item-label">HICBC ends at</span>
+                        <span class="policy-item-value">£80,000</span>
+                    </div>
+                </div>
+
+                <div class="policy-column reform">
+                    <h3>Reform proposal</h3>
+                    <div class="policy-item">
+                        <span class="policy-item-label">Eldest child rate</span>
+                        <span class="policy-item-value">£52.10/week</span>
+                    </div>
+                    <div class="policy-item">
+                        <span class="policy-item-label">Additional children</span>
+                        <span class="policy-item-value">£34.50/week</span>
+                    </div>
+                    <div class="policy-item">
+                        <span class="policy-item-label">HICBC</span>
+                        <span class="policy-item-value">Abolished</span>
+                    </div>
+                    <div class="policy-item">
+                        <span class="policy-item-label">Universal access</span>
+                        <span class="policy-item-value">All families</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Percentage Impact Chart -->
+        <section class="chart-section">
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3 class="chart-title">Proportional impact by income</h3>
+                    <div class="chart-controls">
+                        <button class="chart-btn pct-btn active" data-children="1">1 child</button>
+                        <button class="chart-btn pct-btn" data-children="2">2 children</button>
+                        <button class="chart-btn pct-btn" data-children="3">3 children</button>
+                    </div>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="pctChart"></canvas>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logos">
+                <span class="footer-logo">NEF</span>
+                <div class="footer-divider"></div>
+                <span class="footer-logo">PolicyEngine</span>
+            </div>
+            <p>
+                Analysis powered by <a href="https://policyengine.org/uk" target="_blank">PolicyEngine UK</a>
+                using the enhanced Family Resources Survey 2023-24 microsimulation dataset.
+            </p>
+            <p style="margin-top: 1rem;">
+                January 2024 · Created for NEF meeting demonstration
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Data from PolicyEngine UK API
+        const data = {
+            incomes: [15000, 20000, 25000, 30000, 35000, 40000, 50000, 60000, 70000, 80000, 100000],
+            changes: {
+                1: [1378, 1378, 1378, 1378, 1378, 1378, 1378, 1378, 2043, 2709, 2709],
+                2: [2290, 2290, 2290, 2290, 2290, 2291, 2291, 2290, 3397, 4503, 4503],
+                3: [3203, 3203, 3203, 3203, 3203, 3203, 3203, 3203, 4750, 6297, 6297]
+            },
+            pctChanges: {
+                1: [6.6, 6.2, 5.7, 5.2, 4.6, 4.1, 3.4, 3.0, 4.0, 4.8, 4.0],
+                2: [9.1, 8.6, 8.1, 7.6, 7.2, 6.7, 5.5, 4.8, 6.5, 7.9, 6.6],
+                3: [10.4, 9.9, 9.4, 9.0, 8.6, 8.0, 6.8, 6.0, 8.3, 10.2, 9.2]
+            }
+        };
+
+        const colors = {
+            1: '#c32e30',
+            2: '#368f7a',
+            3: '#2e70a3'
+        };
+
+        const labels = data.incomes.map(v => '£' + (v/1000) + 'k');
+
+        // Income Chart
+        const incomeCtx = document.getElementById('incomeChart').getContext('2d');
+        const incomeChart = new Chart(incomeCtx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Annual gain (£)',
+                    data: data.changes[1],
+                    backgroundColor: colors[1],
+                    borderRadius: 6,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => `+£${ctx.raw.toLocaleString()}/year`
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0,0,0,0.05)' },
+                        ticks: {
+                            callback: (v) => '£' + v.toLocaleString()
+                        }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Percentage Chart
+        const pctCtx = document.getElementById('pctChart').getContext('2d');
+        const pctChart = new Chart(pctCtx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Income boost (%)',
+                    data: data.pctChanges[1],
+                    borderColor: colors[1],
+                    backgroundColor: colors[1] + '20',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => `+${ctx.raw.toFixed(1)}%`
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0,0,0,0.05)' },
+                        ticks: {
+                            callback: (v) => v + '%'
+                        }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Button handlers for income chart
+        document.querySelectorAll('.chart-btn:not(.pct-btn)').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const children = parseInt(btn.dataset.children);
+                document.querySelectorAll('.chart-btn:not(.pct-btn)').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                incomeChart.data.datasets[0].data = data.changes[children];
+                incomeChart.data.datasets[0].backgroundColor = colors[children];
+                incomeChart.update();
+            });
+        });
+
+        // Button handlers for pct chart
+        document.querySelectorAll('.pct-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const children = parseInt(btn.dataset.children);
+                document.querySelectorAll('.pct-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                pctChart.data.datasets[0].data = data.pctChanges[children];
+                pctChart.data.datasets[0].borderColor = colors[children];
+                pctChart.data.datasets[0].backgroundColor = colors[children] + '20';
+                pctChart.update();
+            });
+        });
+    </script>
+</body>
+</html>
