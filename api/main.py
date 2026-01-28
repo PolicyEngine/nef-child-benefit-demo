@@ -2,8 +2,8 @@ import modal
 
 app = modal.App("policyengine-uk-demo")
 
-image = modal.Image.debian_slim(python_version="3.11").pip_install(
-    "policyengine-uk==2.45.4",
+image = modal.Image.debian_slim(python_version="3.13").pip_install(
+    "policyengine-uk",  # Latest version (requires Python 3.13+)
     "fastapi[standard]",
 )
 
@@ -17,16 +17,15 @@ def do_calculation(reform: dict = None, incomes: list = None, num_children: int 
 
     if reform is None:
         reform = {
-            "gov.hmrc.child_benefit.amount.eldest": {"year:2024:10": 52.10},
-            "gov.hmrc.child_benefit.amount.additional": {"year:2024:10": 34.50},
-            "gov.hmrc.income_tax.charges.CB_HITC.phase_out_start": {"year:2024:10": 10_000_000},
+            "gov.hmrc.child_benefit.amount.eldest": {"2024-01-01.2100-12-31": 52.10},
+            "gov.hmrc.child_benefit.amount.additional": {"2024-01-01.2100-12-31": 34.50},
+            "gov.hmrc.income_tax.charges.CB_HITC.phase_out_start": {"2024-01-01.2100-12-31": 10_000_000},
         }
 
     year = 2024
     results = []
 
     for income in incomes:
-        # Build situation dict
         members = ["parent"] + [f"child{i+1}" for i in range(num_children)]
 
         situation = {
@@ -35,49 +34,21 @@ def do_calculation(reform: dict = None, incomes: list = None, num_children: int 
                     "age": {year: 35},
                     "employment_income": {year: income},
                 },
-                **{
-                    f"child{i+1}": {"age": {year: max(2, 8 - i*3)}}
-                    for i in range(num_children)
-                }
+                **{f"child{i+1}": {"age": {year: max(2, 8 - i*3)}} for i in range(num_children)}
             },
-            "benunits": {
-                "benunit": {"members": members}
-            },
-            "households": {
-                "household": {
-                    "members": members,
-                    "region": {year: "LONDON"},
-                }
-            },
+            "benunits": {"benunit": {"members": members}},
+            "households": {"household": {"members": members, "region": {year: "LONDON"}}},
         }
 
-        # Baseline calculation
-        baseline_sim = Simulation(situation=situation)
-        baseline_sim.dataset = None
+        # Baseline
+        baseline = Simulation(situation=situation)
+        baseline_net = float(baseline.calculate("household_net_income", year).sum())
+        baseline_cb = float(baseline.calculate("child_benefit", year).sum())
 
-        baseline_income_tax = float(baseline_sim.calculate("income_tax", year).sum())
-        baseline_ni = float(baseline_sim.calculate("national_insurance", year).sum())
-        baseline_gross = float(baseline_sim.calculate("total_income", year).sum())
-
-        # For child benefit, directly get the amount paid after CB_HITC
-        baseline_child_benefit_entitlement = float(baseline_sim.calculate("child_benefit_entitlement", year).sum())
-        baseline_cb_hitc = float(baseline_sim.calculate("CB_HITC", year).sum())
-
-        baseline_cb = baseline_child_benefit_entitlement - baseline_cb_hitc
-        baseline_net = baseline_gross - baseline_income_tax - baseline_ni + baseline_cb
-
-        # Reform calculation
-        reformed_sim = Simulation(situation=situation, reform=reform)
-        reformed_sim.dataset = None
-
-        reformed_income_tax = float(reformed_sim.calculate("income_tax", year).sum())
-        reformed_ni = float(reformed_sim.calculate("national_insurance", year).sum())
-        reformed_gross = float(reformed_sim.calculate("total_income", year).sum())
-        reformed_child_benefit_entitlement = float(reformed_sim.calculate("child_benefit_entitlement", year).sum())
-        reformed_cb_hitc = float(reformed_sim.calculate("CB_HITC", year).sum())
-
-        reformed_cb = reformed_child_benefit_entitlement - reformed_cb_hitc
-        reformed_net = reformed_gross - reformed_income_tax - reformed_ni + reformed_cb
+        # Reform
+        reformed = Simulation(situation=situation, reform=reform)
+        reformed_net = float(reformed.calculate("household_net_income", year).sum())
+        reformed_cb = float(reformed.calculate("child_benefit", year).sum())
 
         change = reformed_net - baseline_net
         pct_change = (change / baseline_net * 100) if baseline_net > 0 else 0
